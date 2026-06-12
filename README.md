@@ -35,7 +35,7 @@ cmake --build .
 禁用RVV:
 
 ```Shell
-cmake -DCMAKE_TOOLCHAIN_FILE="../opencv/platforms/linux/riscv64-gcc.toolchain.cmake" \                        
+cmake -DCMAKE_TOOLCHAIN_FILE="../opencv/platforms/linux/riscv64-gcc.toolchain.cmake" \
 -DCMAKE_CXX_FLAGS="-march=rv64imafdcv_zicbom_zicboz_zicntr_zicond_zicsr_zifencei_zihintpause_zihpm_zfh_zfhmin_zca_zcd_zba_zbb_zbc_zbs_zkt_zve32f_zve32x_zve64d_zve64f_zve64x_zvfh_zvfhmin_zvkt" \
 -DCMAKE_C_FLAGS="-march=rv64imafdcv_zicbom_zicboz_zicntr_zicond_zicsr_zifencei_zihintpause_zihpm_zfh_zfhmin_zca_zcd_zba_zbb_zbc_zbs_zkt_zve32f_zve32x_zve64d_zve64f_zve64x_zvfh_zvfhmin_zvkt" \
 -DWITH_OPENCL=OFF -DCPU_BASELINE=  \
@@ -47,20 +47,42 @@ cmake --build .
 
 ```
 cd ~
-git clone https://github.com/opencv/opencv.git 
-git clone https://github.com/opencv/opencv_contrib.git
+git clone https://github.com/opencv/opencv.git --recursive
+git clone https://github.com/opencv/opencv_contrib.git --recursive
+```
 
-mkdir build_rvv && cd build_rvv
+```
+mkdir build_opencv_rvv && cd build_opencv_rvv
 
 cmake -D CMAKE_BUILD_TYPE=Release \
       -D CMAKE_INSTALL_PREFIX=./install \
-      -D CMAKE_CXX_FLAGS=-march=rv64gcv \
+      -DCMAKE_CXX_FLAGS="-march=rv64imafdcv_zicbom_zicboz_zicntr_zicond_zicsr_zifencei_zihintpause_zihpm_zfh_zfhmin_zca_zcd_zba_zbb_zbc_zbs_zkt_zve32f_zve32x_zve64d_zve64f_zve64x_zvfh_zvfhmin_zvkt" \
       -D OPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules \
       -D BUILD_JPEG=ON \
       -D BUILD_opencv_python3=OFF \
-      -D BUILD_EXAMPLES=OFF ../opencv
+      -D BUILD_EXAMPLES=OFF \
+      -DWITH_OPENCL=OFF \
+      ../opencv
 ```
 
+```
+cmake --build . -j8
+```
+
+禁用RVV:
+```
+mkdir build_opencv_no_rvv && cd build_opencv_no_rvv
+
+cmake -D CMAKE_BUILD_TYPE=Release \
+      -D CMAKE_INSTALL_PREFIX=./install \
+      -D OPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules \
+      -D BUILD_JPEG=ON \
+      -D BUILD_opencv_python3=OFF \
+      -DCPU_BASELINE=  \
+      -D BUILD_EXAMPLES=OFF \
+      -DWITH_OPENCL=OFF \
+      ../opencv
+```
 
 
 ## 测试命令
@@ -68,8 +90,8 @@ cmake -D CMAKE_BUILD_TYPE=Release \
 测试数据执行以下命令下载：
 
 ```Shell
-git clone https://github.com/opencv/opencv_extra.git
-cd ~/build_rvv/bin
+git clone https://github.com/opencv/opencv_extra.git --recursive
+cd ~/build_opencv_rvv/bin
 export sub_dir=results_k1_rvv # 根据需要更改
 export OPENCV_TEST_DATA_PATH=~/opencv_extra/testdata
 export LD_LIBRARY_PATH=../lib:$LD_LIBRARY_PATH
